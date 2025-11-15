@@ -1,0 +1,63 @@
+:root{
+  --bg:#f6f4ff;
+  --card:#ffffff;
+  --text:#2b2b2f;
+  --muted:#6b6b76;
+  --brand:#6C5CE7;
+  --brand-600:#5a4fdf;
+  --border:#e6e6ef;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+  background:var(--bg); color:var(--text);
+}
+.top{max-width:1100px;margin:32px auto 0;padding:0 20px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{font-size:22px}
+.top h1{margin:0;font-size:28px;color:#5b38ff}
+.tagline{margin:6px 0 0;color:var(--muted)}
+
+.container{
+  max-width:1100px;margin:20px auto;padding:20px;
+  background:linear-gradient(180deg, #ffffff, #ffffffcc);
+  border-radius:18px; box-shadow:0 10px 28px rgba(60,30,150,.08);
+  display:grid; grid-template-columns:1fr 1fr; gap:24px;
+}
+.left,.right{background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border)}
+.label{display:block;margin-bottom:8px;font-weight:600}
+.prompt{
+  width:100%; padding:14px 16px; border-radius:12px;
+  border:1px solid var(--border); outline:none; resize:vertical; min-height:150px;
+  font-size:14px; background:#fafafe;
+}
+.prompt:focus{border-color:#b9b2ff; box-shadow:0 0 0 3px #e7e4ff}
+
+.actions{display:flex;gap:12px;margin-top:14px}
+.btn{
+  padding:12px 16px; border-radius:12px; border:1px solid transparent;
+  cursor:pointer; font-weight:600; font-size:14px;
+}
+.primary{background:var(--brand); color:white}
+.primary:hover{background:var(--brand-600)}
+.outline{background:white; color:var(--brand); border-color:#cfc7ff}
+.outline:hover{background:#f5f3ff}
+
+.meta{display:flex;align-items:center;gap:14px;margin-top:16px}
+.trials{background:#edeaff;border-radius:20px;padding:6px 10px;color:#5b38ff;font-weight:600;font-size:12px}
+.policy{color:var(--muted); text-decoration:none}
+.policy:hover{text-decoration:underline}
+
+.preview{
+  height:100%; min-height:320px; display:flex; align-items:center; justify-content:center;
+  border:2px dashed #d7d2ff; border-radius:14px; background:#fbfaff;
+  overflow:hidden;
+}
+.placeholder{display:flex;flex-direction:column;align-items:center;color:#9a96b5}
+.placeholder img{width:52px;height:52px;opacity:.6;margin-bottom:6px}
+.preview img.generated{width:100%;height:auto;display:block}
+
+@media (max-width:900px){
+  .container{grid-template-columns:1fr}
+}
