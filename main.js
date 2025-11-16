@@ -1,4 +1,4 @@
-// Textura AI frontend main.js (v2.4) — aspect-only (safe mode) + download proxy
+// Textura AI frontend main.js (v2.5) — aspect-only (safe mode) + download proxy + 429 rate limit handling
 
 const API_BASE = 'https://textura-api.onrender.com';
 const API_URL = API_BASE + '/api/generate-image';
@@ -6,7 +6,7 @@ const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.4 loaded');
+console.log('Main.js v2.5 loaded');
 
 const TRIALS_KEY = 'textura_trials_left';
 const preview = document.getElementById('preview');
@@ -39,8 +39,6 @@ async function onGenerate() {
 
   try {
     const ar = (ratioSelect?.value || DEFAULT_ASPECT_RATIO);
-
-    // Cheapest speed forced on server; we send only prompt + aspect
     const payload = { prompt, aspect_ratio: ar };
 
     const data = await postWithTimeout(API_URL, payload, REQUEST_TIMEOUT_MS);
@@ -55,8 +53,14 @@ async function onGenerate() {
     setDownloadEnabled(true);
   } catch (e) {
     console.error(e);
-    showError('Error: ' + (e.message || e));
-    alert('Kuch ghalt hogaya: ' + (e.message || e));
+    // Special message if rate limit
+    if (String(e.message).toLowerCase().includes('rate limit')) {
+      showError('Limit 5/hour ho gayi. Thoda wait karo.');
+      alert('Limit 5/hour ho gayi. 1 ghanta wait karo.');
+    } else {
+      showError('Error: ' + (e.message || e));
+      alert('Kuch ghalt hogaya: ' + (e.message || e));
+    }
     setDownloadEnabled(false);
   } finally {
     setLoading(false);
@@ -81,11 +85,11 @@ async function onDownload() {
 
 function makeFilename(prompt) {
   const slug = String(prompt || 'textura')
-      .toLowerCase()
-      .replace(/[^a-z0-9\- _]+/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .slice(0, 40) || 'textura';
+    .toLowerCase()
+    .replace(/[^a-z0-9\- _]+/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 40) || 'textura';
   return `${slug}-${Date.now()}.png`;
 }
 
@@ -105,11 +109,20 @@ async function postWithTimeout(url, body, timeoutMs) {
 
   clearTimeout(id);
 
+  // Handle explicit 429 (rate limit)
+  if (res.status === 429) {
+    let msg = 'Rate limit exceeded (5/hour)';
+    try {
+      const j = await res.json();
+      if (j && j.error) msg = j.error;
+    } catch {}
+    throw new Error(msg);
+  }
+
   if (!res.ok) {
     let detail = '';
     try {
       const jsonErr = await res.json();
-      // show server error + detail if present (better debug)
       detail = (jsonErr.error || res.statusText) + (jsonErr.detail ? ' — ' + jsonErr.detail : '');
     } catch {
       detail = res.status + ' ' + res.statusText;
