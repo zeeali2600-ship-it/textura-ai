@@ -194,7 +194,7 @@
     <h2>3. استعمال</h2>
     <ul>
       <li>پرامپٹ سے امیج بنانا.</li>
-      <li>مفت ٹرائل گِننا (لوکل).</li>
+      <li>مفت ٹرائل گننا (لوکل).</li>
       <li>خرابیاں درست کر کے سروس مستحکم رکھنا.</li>
     </ul>
 
@@ -224,11 +224,7 @@
     <p>“Generate Image” دبانے سے آپ مانتے ہیں کہ آپ کا پرامپٹ AI سروس کو امیج بنانے کیلئے جائے گا.</p>
   </section>
 
-  <div class="box muted" style="margin-top:34px;">
-    This simple policy intentionally avoids legal jargon; if regulations require more detail later, we will extend it.
-  </div>
-
-  <footer>
+  <footer style="margin-top:40px;font-size:.65rem;color:#5f6381;text-align:center;">
     © <span id="year"></span> Textura AI
   </footer>
 </main>
@@ -236,7 +232,7 @@
 <script>
   const d=new Date();
   document.getElementById('year').textContent=d.getFullYear();
-  document.getElementById('lastUpdated').textContent=d.toISOString().split('T')[0];
+  document.getElementById('lastUpdated') && (document.getElementById('lastUpdated').textContent=d.toISOString().split('T')[0]);
 
   const buttons=document.querySelectorAll('.lang-toggle button');
   const en=document.getElementById('en');
