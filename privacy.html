@@ -8,7 +8,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
-  <!-- v=simple-no-reset -->
+  <!-- v=simple-en-only -->
   <style>
     :root { --brand:#6C5CE7; --bg:#faf9ff; --card:#ffffff; --text:#1f2233; --muted:#5f6381; --border:#e4e2f4; }
     *{box-sizing:border-box;}
@@ -24,14 +24,9 @@
     li{margin:4px 0;font-size:.92rem;}
     p{font-size:.92rem;}
     .box{background:#f2f0ff;border:1px solid #ded9fb;padding:12px 14px;border-radius:14px;font-size:.75rem;margin:16px 0 22px;}
-    .lang{display:flex;gap:10px;margin:0 0 18px;}
-    .lang button{border:1px solid #d9d4ff;background:#ebe8ff;color:#382d84;padding:8px 16px;font-size:.7rem;font-weight:600;border-radius:10px;cursor:pointer;transition:.2s;}
-    .lang button.active,.lang button:hover{background:var(--brand);color:#fff;border-color:var(--brand);}
-    #ur{display:none;direction:rtl;text-align:right;}
-    #ur h2::before{left:auto;right:-14px;}
     a{color:#6C5CE7;text-decoration:none;}
     a:hover{text-decoration:underline;}
-    footer{text-align:center;font-size:.65rem;color:var(--muted);margin:34px 0 50px;}
+    footer{text-align:center;font-size:.65rem;color:#5f6381;margin:34px 0 50px;}
     @media (max-width:640px){main{padding:32px 22px 38px;} header h1{font-size:1.55rem;}}
   </style>
 </head>
@@ -46,12 +41,6 @@
     <strong>Support:</strong> <a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a>
   </div>
 
-  <div class="lang">
-    <button type="button" data-lang="en" class="active">English</button>
-    <button type="button" data-lang="ur">اردو</button>
-  </div>
-
-  <!-- English -->
   <section id="en">
     <h2>1. Data We Collect</h2>
     <ul>
@@ -94,66 +83,12 @@
     <p>By clicking “Generate Image” you consent to transmitting your prompt for image generation.</p>
   </section>
 
-  <!-- Urdu -->
-  <section id="ur">
-    <h2>1. کیا جمع کیا جاتا ہے</h2>
-    <ul>
-      <li>پرامپٹ ٹیکسٹ (امیج بنانے کے لیے، مستقل محفوظ نہیں ہوتا).</li>
-      <li>امیج کا عارضی لنک (ختم ہو سکتا ہے، ہم محفوظ نہیں رکھتے).</li>
-      <li>ٹرائل گنتی آپ کے براوزر کے localStorage میں.</li>
-      <li>بنیادی کامیابی / خرابی لاگز (ذاتی شناخت نہیں).</li>
-    </ul>
-
-    <h2>2. کیا جمع نہیں کرتے</h2>
-    <ul>
-      <li>کوئی ذاتی پروفائل: نام، فون، پتہ وغیرہ نہیں.</li>
-      <li>ادائیگی کارڈ معلومات نہیں.</li>
-      <li>کوئی اشتہاری یا رویہ ٹریکنگ نہیں.</li>
-    </ul>
-
-    <h2>3. استعمال</h2>
-    <ul>
-      <li>آپ کے پرامپٹ سے امیج بنانا.</li>
-      <li>فئیر استعمال کے لیے ٹرائل حد لگانا.</li>
-      <li>سروس کو مستحکم رکھنا اور تکنیکی مسائل حل کرنا.</li>
-    </ul>
-
-    <h2>4. صارف کے اختیارات</h2>
-    <ul>
-      <li>اگر پالیسی پسند نہیں تو ایپ کا استعمال روک دیں.</li>
-      <li>پرامپٹ میں ذاتی یا حساس معلومات شامل نہ کریں.</li>
-    </ul>
-
-    <h2>5. حفاظتی مشورے</h2>
-    <ul>
-      <li>خفیہ یا نجی معلومات نہ لکھیں.</li>
-      <li>امیج کو عوامی یا تجارتی استعمال سے پہلے دیکھ لیں.</li>
-    </ul>
-
-    <h2>6. رابطہ</h2>
-    <p>ای میل: <a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a></p>
-
-    <h2>7. رضامندی</h2>
-    <p>“Generate Image” دبانے سے آپ اپنے پرامپٹ کے امیج بنانے کے لیے بھیجے جانے پر راضی ہیں.</p>
-  </section>
-
   <footer>© <span id="year"></span> Textura AI</footer>
 </main>
 <script>
   const d=new Date();
   document.getElementById('year').textContent=d.getFullYear();
   document.getElementById('lastUpdated').textContent=d.toISOString().split('T')[0];
-  const buttons=document.querySelectorAll('.lang button, .lang-toggle button, .lang > button');
-  const en=document.getElementById('en'), ur=document.getElementById('ur');
-  document.querySelectorAll('.lang button').forEach(b=>{
-    b.addEventListener('click',()=>{
-      document.querySelectorAll('.lang button').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      if(b.dataset.lang==='ur'){en.style.display='none';ur.style.display='block';}
-      else{ur.style.display='none';en.style.display='block';}
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
-  });
 </script>
 </body>
 </html>
