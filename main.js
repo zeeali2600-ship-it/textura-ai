@@ -1,4 +1,4 @@
-// Textura AI frontend main.js (v2.5) — aspect-only (safe mode) + download proxy + 429 rate limit handling
+// Textura AI frontend main.js (v2.6) — aspect-only + download proxy + 429 handling + subscribe modal
 
 const API_BASE = 'https://textura-api.onrender.com';
 const API_URL = API_BASE + '/api/generate-image';
@@ -6,7 +6,7 @@ const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.5 loaded');
+console.log('Main.js v2.6 loaded');
 
 const TRIALS_KEY = 'textura_trials_left';
 const preview = document.getElementById('preview');
@@ -17,22 +17,54 @@ const downloadBtn = document.getElementById('download');
 const promptEl = document.getElementById('prompt');
 const ratioSelect = document.getElementById('aspect-ratio');
 
+// Modal elements
+const subModal = document.getElementById('subModal');
+const subClose = document.getElementById('subClose');
+
 let trials = Number(localStorage.getItem(TRIALS_KEY));
 if (!Number.isFinite(trials) || trials <= 0) trials = 3;
 let currentImageUrl = '';
 updateTrials();
 setDownloadEnabled(false);
 
+// Events
 genBtn.addEventListener('click', onGenerate);
-subBtn.addEventListener('click', () => {
-  alert('Subscribe flow Windows Store me baad me add hoga (demo).');
-});
+subBtn.addEventListener('click', openSubscribeModal);
 downloadBtn.addEventListener('click', onDownload);
+
+subClose?.addEventListener('click', closeSubscribeModal);
+subModal?.addEventListener('click', (e) => {
+  if (e.target === subModal) closeSubscribeModal();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && isModalOpen()) closeSubscribeModal();
+});
+
+function isModalOpen() {
+  return subModal && subModal.style.display === 'flex';
+}
+function openSubscribeModal() {
+  if (subModal) {
+    subModal.style.display = 'flex';
+    subModal.setAttribute('aria-hidden', 'false');
+  }
+}
+function closeSubscribeModal() {
+  if (subModal) {
+    subModal.style.display = 'none';
+    subModal.setAttribute('aria-hidden', 'true');
+  }
+}
 
 async function onGenerate() {
   const prompt = (promptEl.value || '').trim();
   if (!prompt) { alert('Please enter a prompt.'); return; }
-  if (trials <= 0) { alert('Free trials khatam. Please Subscribe.'); return; }
+
+  // Trials finished → modal
+  if (trials <= 0) {
+    openSubscribeModal();
+    return;
+  }
 
   setLoading(true);
   clearPreview();
@@ -50,10 +82,15 @@ async function onGenerate() {
     trials -= 1;
     localStorage.setItem(TRIALS_KEY, String(trials));
     updateTrials();
+
+    // Agar ab trials 0 ho gaye to modal dikhao (next generate se pehle bhi handle hai)
+    if (trials <= 0) {
+      setTimeout(openSubscribeModal, 400);
+    }
+
     setDownloadEnabled(true);
   } catch (e) {
     console.error(e);
-    // Special message if rate limit
     if (String(e.message).toLowerCase().includes('rate limit')) {
       showError('Limit 5/hour ho gayi. Thoda wait karo.');
       alert('Limit 5/hour ho gayi. 1 ghanta wait karo.');
@@ -109,7 +146,6 @@ async function postWithTimeout(url, body, timeoutMs) {
 
   clearTimeout(id);
 
-  // Handle explicit 429 (rate limit)
   if (res.status === 429) {
     let msg = 'Rate limit exceeded (5/hour)';
     try {
@@ -136,7 +172,7 @@ async function postWithTimeout(url, body, timeoutMs) {
 }
 
 function updateTrials() {
-  if (trialsEl) trialsEl.textContent = String(trials);
+  trialsEl && (trialsEl.textContent = String(trials));
 }
 
 function setLoading(isLoading) {
