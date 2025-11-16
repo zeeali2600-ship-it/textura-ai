@@ -8,464 +8,248 @@
   <style>
     :root {
       --brand:#6C5CE7;
-      --bg:#f7f6fd;
+      --bg:#faf9ff;
       --card:#ffffff;
       --text:#1f2233;
-      --muted:#5c6080;
+      --muted:#5f6381;
       --border:#e4e2f4;
-      --radius:18px;
     }
-    * { box-sizing:border-box; }
-    body {
+    *{box-sizing:border-box;}
+    body{
       margin:0;
-      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
       background:var(--bg);
       color:var(--text);
       line-height:1.55;
       -webkit-font-smoothing:antialiased;
+      padding:0 0 60px;
     }
-    header.site {
-      background: linear-gradient(135deg,#6C5CE7,#8e7dff);
+    header{
+      background:linear-gradient(135deg,#6C5CE7,#8d7bff);
       color:#fff;
-      padding:22px 34px;
-      display:flex;
-      align-items:center;
-      gap:18px;
-      flex-wrap:wrap;
+      padding:26px 34px 30px;
+      text-align:center;
     }
-    header.site h1 {
-      margin:0;
-      font-size:1.65rem;
-      font-weight:600;
-      letter-spacing:.5px;
-    }
-    header.site .tagline {
-      flex:1;
-      font-size:.9rem;
-      opacity:.9;
-    }
-    nav.quick {
-      background:#fff;
-      border-bottom:1px solid var(--border);
-      display:flex;
-      gap:10px;
-      padding:8px 24px;
-      flex-wrap:wrap;
-      position:sticky;
-      top:0;
-      z-index:10;
-    }
-    nav.quick a {
-      text-decoration:none;
-      font-size:.75rem;
-      text-transform:uppercase;
-      letter-spacing:.8px;
-      font-weight:600;
-      color:var(--brand);
-      padding:6px 10px;
-      border-radius:8px;
-      background:#efeafd;
-      transition:.2s;
-    }
-    nav.quick a:hover { background:#e2d8fc; }
-    main {
-      max-width:1180px;
-      margin:0 auto;
-      padding:42px 28px 80px;
-      display:grid;
-      grid-template-columns: 1fr minmax(0,680px);
-      gap:54px;
-    }
-    @media (max-width:980px){
-      main { display:block; padding:36px 20px 70px; }
-    }
-    .side {
-      position:relative;
-    }
-    .side .summary {
+    header h1{margin:0;font-size:1.9rem;font-weight:600;letter-spacing:.5px;}
+    header p{margin:10px 0 0;font-size:.9rem;opacity:.9;}
+    main{
+      max-width:880px;
+      margin:34px auto 0;
       background:var(--card);
+      padding:40px 42px 46px;
       border:1px solid var(--border);
-      padding:28px 28px 32px;
-      border-radius:var(--radius);
-      box-shadow:0 4px 18px rgba(0,0,0,.04);
+      border-radius:20px;
+      box-shadow:0 8px 32px -8px rgba(0,0,0,.06);
     }
-    .summary h2 {
-      margin-top:0;
+    h2{
+      margin:42px 0 12px;
       font-size:1.15rem;
-      letter-spacing:.5px;
-    }
-    .badge {
-      display:inline-block;
-      background:var(--brand);
-      color:#fff;
-      padding:3px 7px;
-      font-size:.6rem;
-      border-radius:6px;
-      margin-right:6px;
-      letter-spacing:.5px;
-      vertical-align:middle;
-    }
-    article.policy {
-      background:var(--card);
-      border:1px solid var(--border);
-      padding:40px 48px;
-      border-radius:var(--radius);
-      box-shadow:0 4px 28px rgba(0,0,0,.06);
-    }
-    @media (max-width:680px){
-      article.policy { padding:34px 24px; }
-    }
-    article.policy h2 {
-      margin-top:62px;
-      font-size:1.25rem;
       position:relative;
     }
-    article.policy h2:first-of-type { margin-top:0; }
-    article.policy h2::before {
+    h2:first-of-type{margin-top:0;}
+    h2::before{
       content:"";
       position:absolute;
-      left:-14px;
+      left:-16px;
       top:50%;
       transform:translateY(-50%);
-      width:6px;
-      height:24px;
-      background:linear-gradient(to bottom,#6C5CE7,#a699ff);
+      width:5px;height:22px;
+      background:#6C5CE7;
       border-radius:4px;
     }
-    a { color:var(--brand); }
-    ul { padding-left:22px; margin-top:8px; }
-    li { margin-bottom:6px; }
-    .muted { color:var(--muted); }
-    .panel {
-      background:#efeafd;
-      border:1px solid #ded4fa;
+    p,li{font-size:.92rem;}
+    ul{margin:8px 0 0;padding-left:20px;}
+    li{margin:4px 0;}
+    .box{
+      background:#f2f0ff;
+      border:1px solid #ded9fb;
       padding:14px 16px;
-      border-radius:12px;
-      font-size:.85rem;
-      margin:20px 0;
+      border-radius:14px;
+      font-size:.8rem;
+      margin:18px 0 10px;
     }
-    .code {
-      font-family:monospace;
-      background:#f0eefb;
-      padding:2px 6px;
-      border-radius:6px;
+    .lang-toggle{
+      display:flex;gap:10px;margin:34px 0 8px;
     }
-    footer {
-      background:#fff;
-      border-top:1px solid var(--border);
-      padding:26px 34px 50px;
-      text-align:center;
-      font-size:.7rem;
-      color:var(--muted);
-    }
-    .lang-toggle {
-      margin:30px 0 10px;
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-    .lang-toggle button {
-      border:none;
-      background:#efeafd;
-      color:#3b3570;
-      padding:8px 18px;
-      border-radius:10px;
-      font-size:.75rem;
+    .lang-toggle button{
+      background:#ebe8ff;border:1px solid #d9d4ff;
+      color:#382d84;
+      padding:8px 16px;
+      font-size:.72rem;
       font-weight:600;
-      letter-spacing:.6px;
+      letter-spacing:.7px;
+      border-radius:10px;
       cursor:pointer;
       transition:.2s;
     }
     .lang-toggle button.active,
-    .lang-toggle button:hover {
+    .lang-toggle button:hover{
       background:#6C5CE7;
       color:#fff;
+      border-color:#6C5CE7;
     }
-    .divider {
-      margin:70px 0 50px;
-      border-top:2px dashed #e3def8;
+    #ur{direction:rtl;text-align:right;display:none;}
+    #ur h2::before{left:auto;right:-16px;}
+    a{color:#6C5CE7;text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    footer{
+      text-align:center;
+      font-size:.65rem;
+      color:var(--muted);
+      margin-top:40px;
     }
-    #ur { direction:rtl; text-align:right; }
-    #ur h2::before { left:auto; right:-14px; }
-    .table-wrap {
-      overflow-x:auto;
-      margin:10px 0 24px;
+    .muted{color:var(--muted);}
+    .divider{margin:50px 0 40px;border-top:2px dashed #eceaf6;}
+    .inline{background:#efeafd;padding:2px 6px;border-radius:6px;font-size:.75rem;}
+    @media (max-width:640px){
+      main{padding:34px 24px 40px;border-radius:18px;}
+      header h1{font-size:1.55rem;}
     }
-    table {
-      border-collapse:collapse;
-      width:100%;
-      font-size:.82rem;
-      background:#faf9ff;
-    }
-    th, td {
-      border:1px solid #e3def8;
-      padding:8px 10px;
-      text-align:left;
-    }
-    th {
-      background:#e9e4fb;
-      font-weight:600;
-      letter-spacing:.4px;
-    }
-    .nowrap { white-space:nowrap; }
   </style>
 </head>
 <body>
-  <header class="site">
-    <h1>Textura AI</h1>
-    <div class="tagline">Transform text prompts into images with minimal data collection.</div>
-  </header>
+<header>
+  <h1>Textura AI</h1>
+  <p>Minimal Privacy Policy (Simple Version)</p>
+</header>
 
-  <nav class="quick" aria-label="Section navigation">
-    <a href="#intro">Intro</a>
-    <a href="#data">Data</a>
-    <a href="#noc">Not Collected</a>
-    <a href="#use">Use</a>
-    <a href="#third">3rd‑Party</a>
-    <a href="#rights">Rights</a>
-    <a href="#security">Security</a>
-    <a href="#contact">Contact</a>
-    <a href="#urdu">اردو</a>
-  </nav>
+<main>
+  <div class="box">
+    <strong>Last Updated:</strong> <span id="lastUpdated"></span><br>
+    <strong>Support:</strong> <a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a>
+  </div>
 
-  <main>
-    <aside class="side">
-      <div class="summary">
-        <h2><span class="badge">TL;DR</span>Summary</h2>
-        <p>We collect only what is needed to generate images (prompt sent transiently, ephemeral image URL, local trial count, minimal logs). No ads, no trackers, no selling of data.</p>
-        <p><strong>Last Updated:</strong> <span id="lastUpdated"></span></p>
-        <p><strong>Support Email:</strong><br><a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a></p>
-        <p class="muted">If you disagree with this policy, please stop using the App.</p>
-        <div class="panel">
-          <strong>Tip:</strong> Use generic prompts; avoid personal or secret info.
-        </div>
-      </div>
-    </aside>
+  <div class="lang-toggle">
+    <button type="button" data-lang="en" class="active">English</button>
+    <button type="button" data-lang="ur">اردو</button>
+  </div>
 
-    <article class="policy" id="policy-content">
-      <section id="intro">
-        <h2>1. Introduction</h2>
-        <p>Welcome to <strong>Textura AI</strong> (“we”, “our”, “the App”). This Privacy Policy explains how we handle information when you use our AI image generation service. Our design goal is <em>privacy by minimalism</em>: do not gather data we don’t absolutely need.</p>
-      </section>
+  <!-- English -->
+  <section id="en">
+    <h2>1. What We Collect</h2>
+    <ul>
+      <li>Prompt text (just to generate the image, not saved).</li>
+      <li>Image URL (temporary, may expire, not stored by us).</li>
+      <li>Trials count (saved only in your browser localStorage).</li>
+      <li>Basic success/error logs (no personal info).</li>
+    </ul>
 
-      <section id="data">
-        <h2>2. Data We Collect</h2>
-        <ul>
-          <li><strong>Prompt Text (Transient):</strong> Sent to our backend, forwarded to the AI provider (Ideogram) to generate an image. We do not permanently store prompts.</li>
-          <li><strong>Generated Image URL (Ephemeral):</strong> Provided by the provider; often expires. We do not host or retain copies on our server.</li>
-          <li><strong>Trial / Credits Counter (Local Only):</strong> Stored in your browser’s <span class="code">localStorage</span> to track remaining free generations. Not sent to us.</li>
-          <li><strong>Basic Technical Logs:</strong> Timestamp + success / failure indicator and possibly error text for debugging. No profiling, no advertising IDs.</li>
-        </ul>
-        <div class="panel">
-          <strong>No persistent user profile:</strong> We currently do not maintain a database of users, nor tie prompts to identity.
-        </div>
-      </section>
+    <h2>2. What We Do NOT Collect</h2>
+    <ul>
+      <li>No name, email, phone, address (unless you email support).</li>
+      <li>No payment card data (future billing handled by store/platform).</li>
+      <li>No ads trackers, no analytics profiling.</li>
+    </ul>
 
-      <section id="noc">
-        <h2>3. Data We Do NOT Collect</h2>
-        <ul>
-          <li>No names, addresses, phone numbers, or personal identifiers unless you voluntarily email support.</li>
-          <li>No payment card details (store billing handled by platform later, separate policy).</li>
-          <li>No advertising analytics SDKs (e.g., Google Analytics, Facebook Pixel).</li>
-          <li>No biometric, health, or location tracking data.</li>
-        </ul>
-      </section>
+    <h2>3. How We Use It</h2>
+    <ul>
+      <li>Generate images from your prompt.</li>
+      <li>Track free trials locally.</li>
+      <li>Fix errors and keep service stable.</li>
+    </ul>
 
-      <section id="use">
-        <h2>4. How We Use Data</h2>
-        <ul>
-          <li>Generate requested images from your prompt.</li>
-          <li>Maintain free trial limits (local counter).</li>
-          <li>Troubleshoot errors via aggregated log info.</li>
-        </ul>
-        <h2>5. Legal Basis (If Applicable – GDPR regions)</h2>
-        <ul>
-          <li><strong>Contract / Service Performance:</strong> Processing your prompt to deliver an image.</li>
-          <li><strong>Legitimate Interest:</strong> Lightweight logging to keep service stable and secure.</li>
-          <li><strong>Consent:</strong> You opt in by submitting a prompt.</li>
-        </ul>
-      </section>
+    <h2>4. Third‑Party</h2>
+    <ul>
+      <li>Ideogram API (image generation + safety filters).</li>
+      <li>Render (backend hosting, transient request logs).</li>
+      <li>GitHub Pages (static frontend hosting).</li>
+    </ul>
 
-      <section id="third">
-        <h2>6. Third‑Party Services</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Service</th>
-                <th>Purpose</th>
-                <th class="nowrap">Data Shared</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Ideogram API</td>
-                <td>Image generation</td>
-                <td>Prompt text (transient)</td>
-                <td>Applies own safety filters; image URLs expire.</td>
-              </tr>
-              <tr>
-                <td>Render Hosting</td>
-                <td>Backend hosting</td>
-                <td>Request metadata (IP indirect in server logs)</td>
-                <td>No advertising; logs rotated by provider.</td>
-              </tr>
-              <tr>
-                <td>GitHub Pages</td>
-                <td>Frontend hosting</td>
-                <td>Standard HTTP access logs</td>
-                <td>Static delivery only.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Third‑party providers have their own privacy terms. We recommend reviewing their policies if concerned.</p>
-        <h2>7. Cookies & Local Storage</h2>
-        <p>No tracking cookies. Only a trial counter stored in <span class="code">localStorage</span>.</p>
-        <h2>8. AI Content & Safety</h2>
-        <ul>
-          <li>Provider may reject unsafe prompts (e.g., illegal content).</li>
-          <li>Images may contain artifacts or inaccuracies. Review before publishing.</li>
-          <li>You are responsible for ensuring generated content respects laws and third‑party rights.</li>
-        </ul>
-      </section>
+    <h2>5. Your Control</h2>
+    <ul>
+      <li>Clear browser storage to reset trials.</li>
+      <li>Stop using the app = no further data sent.</li>
+    </ul>
 
-      <section id="rights">
-        <h2>9. Your Rights (Where Applicable)</h2>
-        <ul>
-          <li><strong>Access / Information:</strong> You can view what is stored locally (trial count).</li>
-          <li><strong>Deletion:</strong> Clear browser storage to remove local data. Prompt text is not stored persistently.</li>
-          <li><strong>Objection / Restriction:</strong> Stop using the App; we keep minimal transient data only.</li>
-        </ul>
-        <h2>10. Data Retention</h2>
-        <ul>
-          <li>Prompts: Not retained beyond immediate processing.</li>
-          <li>Image URLs: Ephemeral; not archived by us.</li>
-          <li>Logs: Short‑term technical error entries, rotated automatically.</li>
-        </ul>
-        <h2>11. Children’s Privacy</h2>
-        <p>The App is not directed to children under 13. We do not knowingly collect their data.</p>
-        <h2 id="security">12. Security</h2>
-        <ul>
-          <li>Transport via HTTPS.</li>
-          <li>No persistent user database reduces risk surface.</li>
-          <li>Nevertheless, no system is 100% secure; use responsibly.</li>
-        </ul>
-        <h2>13. International Data Transfers</h2>
-        <p>Depending on hosting zones, transient request data may pass through servers located in other countries solely to fulfill your request.</p>
-        <h2>14. Policy Changes</h2>
-        <p>Updates posted here with a new “Last Updated” date. Continued use after changes constitutes acceptance.</p>
-        <h2 id="contact">15. Contact</h2>
-        <p>Email: <a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a><br>
-          Do NOT send passwords or highly sensitive data.</p>
-        <h2>16. Consent</h2>
-        <p>By clicking “Generate Image” you consent to the transient processing of your prompt by our backend and the third‑party AI service.</p>
-      </section>
+    <h2>6. Safety Tips</h2>
+    <ul>
+      <li>Avoid personal / secret info in prompts.</li>
+      <li>Generated images may contain artifacts; review before use.</li>
+    </ul>
 
-      <div class="divider"></div>
+    <h2>7. Contact</h2>
+    <p>Email: <a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a></p>
 
-      <div class="lang-toggle">
-        <button type="button" data-lang="en" class="active">English</button>
-        <button type="button" data-lang="ur">اردو (Urdu)</button>
-      </div>
+    <h2>8. Consent</h2>
+    <p>By clicking “Generate Image” you agree your prompt goes to the AI service for creation.</p>
+  </section>
 
-      <!-- Urdu Full Version -->
-      <section id="urdu" style="display:none;">
-        <h2>خلاصہ</h2>
-        <p><strong>Textura AI</strong> کم سے کم ڈیٹا استعمال کرتی ہے: آپ کا پرامپٹ وقتی طور پر، امیج کا عارضی لنک، لوکل ٹرائل کاؤنٹر، اور بنیادی لاگز۔ کوئی اشتہاری ٹریکنگ یا فروخت نہیں۔</p>
-        <h2>لیے جانے والا ڈیٹا</h2>
-        <ul>
-          <li>پرامپٹ (صرف پروسیس کے دوران) – مستقل اسٹور نہیں ہوتا۔</li>
-          <li>امیج لنک (عارضی) – وقت گزرنے پر ختم ہوسکتا ہے۔</li>
-          <li>ٹرائل کاؤنٹر (لوکل اسٹوریج) – آپ کے براوزر میں محفوظ۔</li>
-          <li>بنیادی لاگز – کامیابی/خرابی حل کرنے کے لیے۔</li>
-        </ul>
-        <h2>جو ڈیٹا نہیں لیا جاتا</h2>
-        <ul>
-          <li>کوئی ذاتی شناختی معلومات نہیں جب تک آپ خود ای میل نہ بھیجیں۔</li>
-          <li>کوئی ادائیگی کی تفصیل نہیں۔</li>
-          <li>کوئی اشتہاری یا اینالیٹکس ٹولز نہیں۔</li>
-        </ul>
-        <h2>استعمال</h2>
-        <ul>
-          <li>پرامپٹ صرف امیج بنانے کے لیے استعمال ہوتا ہے۔</li>
-          <li>ٹرائل کاؤنٹر مفت استعمال کنٹرول کرتا ہے۔</li>
-          <li>لاگز سروس کو مستحکم رکھنے کے لیے۔</li>
-        </ul>
-        <h2>تھرڈ پارٹی سروسز</h2>
-        <ul>
-          <li>Ideogram API – امیج جنریشن؛ سیفٹی فلٹر لگا سکتا ہے۔</li>
-          <li>Render – سرور ہوسٹنگ؛ وقتی لاگز۔</li>
-          <li>GitHub Pages – فرنٹ اینڈ ہوسٹنگ۔</li>
-        </ul>
-        <h2>کوکیز / لوکل اسٹوریج</h2>
-        <p>صرف ٹرائل کاؤنٹر۔ کوئی ٹریکنگ کوکی نہیں۔</p>
-        <h2>امیج سیفٹی</h2>
-        <ul>
-          <li>غیر قانونی یا حساس مواد والے پرامپٹ روکے جا سکتے ہیں۔</li>
-          <li>امیج کا درست اور محفوظ استعمال آپ کی ذمہ داری۔</li>
-        </ul>
-        <h2>حقوق</h2>
-        <ul>
-          <li>آپ براوزر کا لوکل اسٹوریج صاف کر کے ٹرائل ڈیٹا مٹا سکتے ہیں۔</li>
-          <li>پرامپٹ مستقل محفوظ نہیں، اس لئے حذف کی ضرورت نہیں۔</li>
-        </ul>
-        <h2>مدت</h2>
-        <ul>
-          <li>پرامپٹ وقتی؛ امیج لنکس عارضی؛ لاگز مختصر مدت کے۔</li>
-        </ul>
-        <h2>بچوں کی پرائیویسی</h2>
-        <p>13 سال سے کم عمر بچوں کے لیے نہیں۔</p>
-        <h2>سکیورٹی</h2>
-        <p>HTTPS استعمال، کم ڈیٹا رکھنے سے رسک کم ہوتا ہے۔</p>
-        <h2>رابطہ</h2>
-        <p>ای میل: <a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a> حساس معلومات نہ بھیجیں۔</p>
-        <h2>رضامندی</h2>
-        <p>“Generate Image” دبانے سے آپ اپنے پرامپٹ کی عارضی پروسیسنگ پر رضامند ہیں۔</p>
-      </section>
-    </article>
-  </main>
+  <!-- Urdu -->
+  <section id="ur">
+    <h2>1. کیا جمع کیا جاتا ہے</h2>
+    <ul>
+      <li>پرامپٹ ٹیکسٹ (صرف امیج بنانے کیلئے، محفوظ نہیں کیا جاتا).</li>
+      <li>امیج لنک (عارضی، ہم مستقل نہیں رکھتے).</li>
+      <li>ٹرائل کاؤنٹر (صرف آپ کے براوزر کے localStorage میں).</li>
+      <li>بنیادی کامیابی / خرابی لاگز (کوئی ذاتی معلومات نہیں).</li>
+    </ul>
+
+    <h2>2. کیا جمع نہیں کرتے</h2>
+    <ul>
+      <li>نام، ای میل، فون، پتہ (جب تک آپ خود ای میل نہ کریں).</li>
+      <li>ادائیگی کارڈ ڈیٹا نہیں.</li>
+      <li>کوئی اشتہاری یا ٹریکنگ اینالیٹکس نہیں.</li>
+    </ul>
+
+    <h2>3. استعمال</h2>
+    <ul>
+      <li>پرامپٹ سے امیج بنانا.</li>
+      <li>مفت ٹرائل گِننا (لوکل).</li>
+      <li>خرابیاں درست کر کے سروس مستحکم رکھنا.</li>
+    </ul>
+
+    <h2>4. تھرڈ پارٹی</h2>
+    <ul>
+      <li>Ideogram API (امیج + سیفٹی فلٹر).</li>
+      <li>Render ہوسٹنگ (وقتی لاگز).</li>
+      <li>GitHub Pages (فرنٹ اینڈ اسٹاٹک ہوسٹنگ).</li>
+    </ul>
+
+    <h2>5. آپ کا کنٹرول</h2>
+    <ul>
+      <li>براوزر اسٹوریج صاف کریں = ٹرائل ری سیٹ.</li>
+      <li>استعمال بند کریں = مزید ڈیٹا نہیں جائے گا.</li>
+    </ul>
+
+    <h2>6. حفاظتی مشورے</h2>
+    <ul>
+      <li>حساس / ذاتی معلومات پرامپٹ میں نہ لکھیں.</li>
+      <li>امیج میں غلطیاں ہو سکتی ہیں؛ استعمال سے پہلے دیکھ لیں.</li>
+    </ul>
+
+    <h2>7. رابطہ</h2>
+    <p>ای میل: <a href="mailto:zerobgmaster.help@hotmail.com">zerobgmaster.help@hotmail.com</a></p>
+
+    <h2>8. رضامندی</h2>
+    <p>“Generate Image” دبانے سے آپ مانتے ہیں کہ آپ کا پرامپٹ AI سروس کو امیج بنانے کیلئے جائے گا.</p>
+  </section>
+
+  <div class="box muted" style="margin-top:34px;">
+    This simple policy intentionally avoids legal jargon; if regulations require more detail later, we will extend it.
+  </div>
 
   <footer>
-    © <span id="year"></span> Textura AI. All rights reserved. | Minimal data, no ads.
+    © <span id="year"></span> Textura AI
   </footer>
+</main>
 
-  <script>
-    (function(){
-      const d=new Date();
-      document.getElementById('year').textContent=d.getFullYear();
-      document.getElementById('lastUpdated').textContent=d.toISOString().split('T')[0];
+<script>
+  const d=new Date();
+  document.getElementById('year').textContent=d.getFullYear();
+  document.getElementById('lastUpdated').textContent=d.toISOString().split('T')[0];
 
-      // Language toggle
-      const buttons=document.querySelectorAll('.lang-toggle button');
-      const urduSection=document.getElementById('urdu');
-      const policyContent=document.getElementById('policy-content');
-      buttons.forEach(btn=>{
-        btn.addEventListener('click',()=>{
-          buttons.forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-          if(btn.dataset.lang==='ur'){
-            urduSection.style.display='block';
-          } else {
-            urduSection.style.display='none';
-          }
-          window.scrollTo({ top: policyContent.offsetTop - 20, behavior:'smooth' });
-        });
-      });
-
-      // Smooth scroll for nav
-      document.querySelectorAll('nav.quick a').forEach(a=>{
-        a.addEventListener('click',e=>{
-          const id=a.getAttribute('href').slice(1);
-          const el=document.getElementById(id);
-          if(el){
-            e.preventDefault();
-            window.scrollTo({ top: el.offsetTop - 12, behavior:'smooth' });
-          }
-        });
-      });
-    })();
-  </script>
+  const buttons=document.querySelectorAll('.lang-toggle button');
+  const en=document.getElementById('en');
+  const ur=document.getElementById('ur');
+  buttons.forEach(b=>{
+    b.addEventListener('click',()=>{
+      buttons.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      if(b.dataset.lang==='ur'){ en.style.display='none'; ur.style.display='block'; }
+      else { ur.style.display='none'; en.style.display='block'; }
+      window.scrollTo({ top:0, behavior:'smooth' });
+    });
+  });
+</script>
 </body>
 </html>
