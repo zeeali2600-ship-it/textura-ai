@@ -2,16 +2,225 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Privacy • Textura AI</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>body{background:#fff}.container{box-shadow:none}</style>
+  <title>Textura AI – Privacy Policy</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body {
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      margin:0;
+      background:#f7f6fd;
+      color:#222;
+      line-height:1.5;
+      padding:32px 20px 60px;
+    }
+    main {
+      max-width:960px;
+      margin:0 auto;
+      background:#fff;
+      padding:40px 48px;
+      border-radius:18px;
+      box-shadow:0 4px 24px rgba(0,0,0,.05);
+    }
+    h1 { margin-top:0; font-size:2.2rem; }
+    h2 { margin-top:2.0em; font-size:1.35rem; }
+    a { color:#6C5CE7; }
+    code { background:#eee; padding:2px 5px; border-radius:4px; font-size:.9em; }
+    .lang-switch { margin:24px 0 32px; display:flex; gap:12px; }
+    .notice { background:#f0edff; border:1px solid #d4ccff; padding:14px 16px; border-radius:10px; font-size:.9rem; }
+    footer { margin-top:48px; font-size:.8rem; opacity:.7; }
+    .divider { margin:60px 0 40px; border-top:2px dashed #eee; }
+    ul { padding-left:22px; }
+    .small { font-size:.85rem; }
+    .tag { display:inline-block; background:#6C5CE7; color:#fff; padding:3px 8px; border-radius:6px; font-size:.7rem; letter-spacing:.5px; margin-right:6px; }
+    @media (max-width:680px){
+      main { padding:32px 20px; }
+      h1 { font-size:1.8rem; }
+    }
+  </style>
 </head>
 <body>
-  <main class="container" style="max-width:800px;">
-    <h2>Privacy Policy</h2>
-    <p>We store minimal data: prompt text (hashed), image URLs, trials/credits count, and basic analytics. No selling of data.</p>
-    <p>Contact: support@your-domain.com</p>
-  </main>
+<main>
+  <h1>Privacy Policy – Textura AI</h1>
+  <div class="notice">
+    <strong>Last Updated:</strong> <span id="last-updated"></span><br>
+    This policy explains how Textura AI (the “App”) handles your data. We aim for minimal collection.
+  </div>
+
+  <div class="lang-switch">
+    <button type="button" onclick="showLang('en')">English</button>
+    <button type="button" onclick="showLang('ur')">اردو</button>
+  </div>
+
+  <!-- English Version -->
+  <section id="en" lang="en">
+    <h2>1. Summary</h2>
+    <p>Textura AI lets you generate images from prompts using a third‑party AI image service (Ideogram) through our backend. We store the minimum possible data.</p>
+
+    <h2>2. Data We Collect</h2>
+    <ul>
+      <li><strong>Locally Stored Trials Count:</strong> Number of free generation attempts left (saved in <code>localStorage</code> on your device only).</li>
+      <li><strong>Prompt (Transient):</strong> Sent to our backend to forward to Ideogram. Not saved permanently in our database (we currently do not run a persistence layer).</li>
+      <li><strong>Generated Image URL (Ephemeral):</strong> Returned by the AI provider; may expire. We do not store the image server‑side.</li>
+      <li><strong>Basic Server Logs:</strong> For reliability (timestamp + success or error). No profiling or advertising trackers.</li>
+    </ul>
+
+    <h2>3. What We Do NOT Collect</h2>
+    <ul>
+      <li>No personal names, emails, addresses, or phone numbers unless you voluntarily send via support email.</li>
+      <li>No payment info – any future subscription will be handled by a trusted payment processor (e.g., Microsoft Store billing) which has its own policy.</li>
+      <li>No behavioral tracking (no Google Analytics / ads SDK).</li>
+    </ul>
+
+    <h2>4. Use of Data</h2>
+    <ul>
+      <li>Prompts are used only to generate the requested image.</li>
+      <li>Local trial count controls free usage.</li>
+      <li>Error logs help fix bugs, improve stability.</li>
+    </ul>
+
+    <h2>5. Third‑Party Services</h2>
+    <ul>
+      <li><strong>Ideogram API:</strong> Processes your prompt to produce images. Their system may apply safety filters or store aggregate usage metrics. Refer to their own policy.</li>
+      <li><strong>Render (Hosting):</strong> Hosts our backend server; transient request logs may include timestamp and status code.</li>
+      <li><strong>GitHub Pages:</strong> Hosts the static frontend; standard access logs may be maintained by GitHub.</li>
+    </ul>
+
+    <h2>6. Cookies & Local Storage</h2>
+    <p>We use <code>localStorage</code> to remember trial count. No tracking cookies.</p>
+
+    <h2>7. Image Safety & User Responsibility</h2>
+    <ul>
+      <li>Do not input personal, confidential, or sensitive data in prompts.</li>
+      <li>Generated images are AI creations and may contain artifacts; you are responsible for how you use them.</li>
+      <li>Any attempt to generate disallowed content (e.g., explicit illegal material) may be blocked by the AI provider.</li>
+    </ul>
+
+    <h2>8. Children’s Privacy</h2>
+    <p>The App is not directed to children under 13. We do not knowingly collect data from children.</p>
+
+    <h2>9. Data Retention & Deletion</h2>
+    <ul>
+      <li>Prompts: Not stored long term.</li>
+      <li>Trial counter: You can clear it by clearing browser storage (<code>localStorage</code>).</li>
+      <li>Logs: Error/success indicators retained short term for troubleshooting, then rotated automatically by the hosting provider.</li>
+    </ul>
+
+    <h2>10. Security</h2>
+    <p>Transport uses HTTPS. We keep no persistent user profile data, reducing attack surface. Still, no internet service can guarantee 100% security.</p>
+
+    <h2>11. Future Changes</h2>
+    <p>If we add accounts/subscriptions, we will update this policy before launch.</p>
+
+    <h2>12. Your Rights</h2>
+    <p>You may request deletion of any support email you sent us. Because we do not maintain personal databases, most rights are inherently satisfied (minimal data held).</p>
+
+    <h2>13. Contact</h2>
+    <p>Email: <a href="mailto:textura.help@gmail.com">textura.help@gmail.com</a> (example – replace with real support email). When contacting, do not include sensitive information.</p>
+
+    <h2>14. Microsoft Store Compliance Notes</h2>
+    <ul>
+      <li>No collection of device identifiers beyond platform‑standard HTTP logs.</li>
+      <li>No sharing of personal data with advertisers.</li>
+      <li>Minimal functionality data only (prompt transit + image generation).</li>
+    </ul>
+
+    <h2>15. Consent</h2>
+    <p>By using the App and clicking “Generate Image,” you consent to sending your prompt to the AI provider for image generation.</p>
+
+    <div class="divider"></div>
+
+    <h2>Brief Urdu Summary (Urdu Version Below)</h2>
+    <p>Neche puri Urdu version hai; English legally primary hai.</p>
+  </section>
+
+  <!-- Urdu Version -->
+  <section id="ur" lang="ur" style="display:none; direction:rtl; text-align:right;">
+    <h2>1. خلاصہ</h2>
+    <p>Textura AI آپ کے لکھے گئے پرامپٹ سے AI امیجز بناتا ہے۔ ہم صرف بہت کم اور وقتی ڈیٹا لیتے ہیں۔</p>
+
+    <h2>2. کون سا ڈیٹا لیا جاتا ہے</h2>
+    <ul>
+      <li><strong>Trials Count (لوکل):</strong> مفت کوششیں کتنی باقی ہیں، براہِ راست آپ کے براوزر کے لوکل اسٹوریج میں۔</li>
+      <li><strong>Prompt (عارضی):</strong> صرف تصویر بنانے کے لیے سرور کو بھیجا جاتا ہے، مستقل ذخیرہ نہیں کیا جاتا۔</li>
+      <li><strong>Image URL (عارضی):</strong> AI سروس واپس دیتی ہے، کچھ وقت بعد ختم بھی ہوسکتا ہے۔</li>
+      <li><strong>Basic Logs:</strong> بس کامیابی یا خرابی نوٹ کرنے کیلئے۔ کوئی ٹریکنگ نہیں۔</li>
+    </ul>
+
+    <h2>3. کون سا ڈیٹا نہیں لیا جاتا</h2>
+    <ul>
+      <li>کوئی ذاتی نام، ای میل، فون نمبر نہیں (جب تک آپ خود ای میل نہ کریں).</li>
+      <li>کوئی ادائیگی کی تفصیل نہیں (مستقبل کا سبسکرپشن اسٹور کے ذریعے ہوگا).</li>
+      <li>کوئی اشتہاری یا اینالیٹکس ٹریکنگ نہیں۔</li>
+    </ul>
+
+    <h2>4. استعمال</h2>
+    <ul>
+      <li>Prompt صرف تصویر بنانے کیلئے استعمال ہوتا ہے۔</li>
+      <li>Trials Count مفت استعمال کنٹرول کرتا ہے۔</li>
+      <li>Logs صرف مسائل حل کرنے کیلئے۔</li>
+    </ul>
+
+    <h2>5. تھرڈ پارٹی</h2>
+    <ul>
+      <li><strong>Ideogram API:</strong> امیج بنانے کیلئے۔ اپنی پالیسی کے مطابق سیفٹی فلٹر لگا سکتا ہے۔</li>
+      <li><strong>Render:</strong> سرور ہوسٹنگ؛ وقتی ریکویسٹ لاگز۔</li>
+      <li><strong>GitHub Pages:</strong> فرنٹ اینڈ ہوسٹنگ۔</li>
+    </ul>
+
+    <h2>6. کوکیز / لوکل اسٹوریج</h2>
+    <p>صرف لوکل اسٹوریج Trials کیلئے۔ کوئی ٹریکنگ کوکیز نہیں۔</p>
+
+    <h2>7. امیج سیفٹی / ذمہ داری</h2>
+    <ul>
+      <li>حساس یا ذاتی معلومات Prompt میں مت لکھیں۔</li>
+      <li>Generated امیجز AI کی تخلیق ہیں؛ استعمال کی ذمہ داری آپ پر۔</li>
+      <li>غیر اخلاقی / غیر قانونی کوشش روکی جا سکتی ہے۔</li>
+    </ul>
+
+    <h2>8. بچوں کی پرائیویسی</h2>
+    <p>یہ ایپ 13 سال سے کم عمر بچوں کیلئے نہیں۔ ہم بچوں کا ڈیٹا جان بوجھ کر جمع نہیں کرتے۔</p>
+
+    <h2>9. مدت / حذف</h2>
+    <ul>
+      <li>Prompt مستقل محفوظ نہیں ہوتا۔</li>
+      <li>Trials Count آپ براوزر کلئیر کر کے مٹا سکتے ہیں۔</li>
+      <li>Logs عارضی، خودکار روٹیشن کے ساتھ۔</li>
+    </ul>
+
+    <h2>10. سکیورٹی</h2>
+    <p>HTTPS استعمال؛ کم از کم ڈیٹا رکھنے سے رسک کم۔ مکمل گارنٹی ممکن نہیں۔</p>
+
+    <h2>11. تبدیلی</h2>
+    <p>اکاؤنٹ یا سبسکرپشن فیچر آنے سے پہلے پالیسی اپڈیٹ ہوگی۔</p>
+
+    <h2>12. آپ کے حقوق</h2>
+    <p>اگر آپ نے ہمیں ای میل کی تو حذف کی درخواست کر سکتے ہیں۔ مستقل ذاتی ڈیٹا نہ رکھنے کی وجہ سے زیادہ حقوق خود پورے ہو جاتے ہیں۔</p>
+
+    <h2>13. رابطہ</h2>
+    <p>ای میل: <a href="mailto:textura.help@gmail.com">textura.help@gmail.com</a> (حساس معلومات نہ بھیجیں).</p>
+
+    <h2>14. Microsoft Store Notes</h2>
+    <ul>
+      <li>کوئی اشتہاری شیئرنگ نہیں۔</li>
+      <li>کم سے کم فنکشنل ڈیٹا۔</li>
+    </ul>
+
+    <h2>15. رضامندی</h2>
+    <p>ایپ استعمال کرتے وقت اور “Generate Image” دبانے سے آپ Prompt کو AI سروس کو بھیجنے پر رضامند ہیں۔</p>
+  </section>
+
+  <footer>
+    © <span id="year"></span> Textura AI. All rights reserved.
+  </footer>
+</main>
+<script>
+  function showLang(id){
+    document.getElementById('en').style.display = id==='en' ? 'block':'none';
+    document.getElementById('ur').style.display = id==='ur' ? 'block':'none';
+  }
+  const d=new Date();
+  document.getElementById('year').textContent=d.getFullYear();
+  document.getElementById('last-updated').textContent=d.toISOString().split('T')[0];
+</script>
 </body>
 </html>
