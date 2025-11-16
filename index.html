@@ -23,7 +23,7 @@
       <label for="prompt" class="label">Enter Your Prompt</label>
       <textarea id="prompt" class="prompt" rows="8" placeholder="e.g., A majestic lion in a snowy forest, cinematic lighting"></textarea>
 
-      <!-- New controls -->
+      <!-- Cost-saver controls -->
       <div class="controls" style="display:flex; gap:12px; flex-wrap:wrap; margin:10px 0;">
         <label>
           Aspect
@@ -36,22 +36,13 @@
           </select>
         </label>
         <label>
-          Size
+          Size (cheap)
           <select id="size">
             <option value="1024" selected>Standard (1024)</option>
-            <option value="1536">High (1536)</option>
-            <option value="2048">Ultra (2048)</option>
+            <option value="768">Compact (768)</option>
           </select>
         </label>
-        <label>
-          Speed
-          <select id="speed">
-            <option value="TURBO" selected>TURBO</option>
-            <option value="DEFAULT">DEFAULT</option>
-            <option value="QUALITY">QUALITY</option>
-            <option value="FLASH">FLASH</option>
-          </select>
-        </label>
+        <!-- Speed selector removed; we force TURBO in code to keep cost lowest -->
       </div>
 
       <div class="actions">
