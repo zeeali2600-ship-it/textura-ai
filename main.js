@@ -1,4 +1,4 @@
-// Textura AI frontend main.js (v2.7) — aspect-only + download proxy + 429 handling + native subscription
+// Textura AI frontend main.js (v2.8) — aspect-only + download proxy + 429 handling + native subscription
 
 const API_BASE = 'https://textura-api.onrender.com';
 const API_URL = API_BASE + '/api/generate-image';
@@ -6,7 +6,7 @@ const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.7 (subscription bridge) loaded');
+console.log('Main.js v2.8 (subscription bridge) loaded');
 
 const TRIALS_KEY = 'textura_trials_left';
 const preview = document.getElementById('preview');
@@ -22,7 +22,7 @@ const subModal = document.getElementById('subModal');
 const subClose = document.getElementById('subClose');
 
 // =====================================================================
-// >>> Added: Native Windows WebView2 subscription bridge
+// Native Windows WebView2 subscription bridge
 // =====================================================================
 const isNative = !!(window.chrome && window.chrome.webview);
 let subStatus = 'INACTIVE'; // ACTIVE / INACTIVE
@@ -44,14 +44,14 @@ if (isNative) {
 function updateSubscribeUI() {
   if (!subBtn) return;
   if (subStatus === 'ACTIVE') {
-    subBtn.textContent = 'Pro Active';
+    subBtn.textContent = 'Pro User';     // changed text
     subBtn.disabled = true;
-    // Trials badge hide
-    trialsEl?.parentElement?.classList?.add('pro-active');
-    // Optionally hide modal button effect
+    // Hide trials badge if any container exists
+    const trialsWrap = trialsEl?.parentElement;
+    if (trialsWrap) trialsWrap.style.display = 'none';
     if (subModal) subModal.style.display = 'none';
   } else {
-    subBtn.textContent = isNative ? 'Subscribe (Desktop)' : 'Subscribe';
+    subBtn.textContent = 'Subscribe';    // changed text
     subBtn.disabled = false;
   }
 }
@@ -62,7 +62,7 @@ if (subBtn) {
     // Native: trigger purchase via bridge
     if (isNative) {
       if (subStatus === 'ACTIVE') return;
-      window.chrome.webview.postMessage('REQUEST_SUBSCRIBE');
+      try { window.chrome.webview.postMessage('REQUEST_SUBSCRIBE'); } catch {}
       return;
     }
     // Browser: open existing modal
@@ -82,8 +82,6 @@ updateSubscribeUI(); // ensure initial label
 
 // Events
 genBtn.addEventListener('click', onGenerate);
-// REMOVED original subscribe handler line (replaced above)
-// subBtn.addEventListener('click', openSubscribeModal);
 downloadBtn.addEventListener('click', onDownload);
 
 subClose?.addEventListener('click', closeSubscribeModal);
@@ -191,7 +189,7 @@ async function postWithTimeout(url, body, timeoutMs) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
 
-  // >>> Changed: headers object so we can inject X-Sub
+  // headers object so we can inject X-Sub
   const headers = { 'Content-Type': 'application/json' };
   if (isNative && subStatus === 'ACTIVE') {
     headers['X-Sub'] = '1'; // tells backend to bypass rate limit
