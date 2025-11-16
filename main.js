@@ -1,4 +1,4 @@
-// Textura AI frontend main.js (v2.8) — aspect-only + download proxy + 429 handling + native subscription
+// Textura AI frontend main.js (v2.9) — aspect-only + download proxy + 429 + native subscription (stable click)
 
 const API_BASE = 'https://textura-api.onrender.com';
 const API_URL = API_BASE + '/api/generate-image';
@@ -6,9 +6,15 @@ const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.8 (subscription bridge) loaded');
+console.log('Main.js v2.9 (subscription bridge) loaded');
+document.body && (document.body.dataset.jsv = 'v2.9');
 
 const TRIALS_KEY = 'textura_trials_left';
+let trials = Number(localStorage.getItem(TRIALS_KEY));
+if (!Number.isFinite(trials) || trials <= 0) trials = 3;
+
+let currentImageUrl = '';
+
 const preview = document.getElementById('preview');
 const trialsEl = document.getElementById('trials-left');
 const genBtn = document.getElementById('generate');
@@ -17,19 +23,17 @@ const downloadBtn = document.getElementById('download');
 const promptEl = document.getElementById('prompt');
 const ratioSelect = document.getElementById('aspect-ratio');
 
-// Modal elements
+// Modal elements (web-only)
 const subModal = document.getElementById('subModal');
 const subClose = document.getElementById('subClose');
 
-// =====================================================================
-// Native Windows WebView2 subscription bridge
-// =====================================================================
+// ========= Native Windows WebView2 subscription bridge =========
 const isNative = !!(window.chrome && window.chrome.webview);
 let subStatus = 'INACTIVE'; // ACTIVE / INACTIVE
 
 if (isNative) {
   // Ask native shell for current license
-  window.chrome.webview.postMessage('CHECK_LICENSE');
+  try { window.chrome.webview.postMessage('CHECK_LICENSE'); } catch {}
 
   // Receive messages from native
   window.chrome.webview.addEventListener('message', (ev) => {
@@ -44,59 +48,59 @@ if (isNative) {
 function updateSubscribeUI() {
   if (!subBtn) return;
   if (subStatus === 'ACTIVE') {
-    subBtn.textContent = 'Pro User';     // changed text
+    subBtn.textContent = 'Pro User';
     subBtn.disabled = true;
-    // Hide trials badge if any container exists
-    const trialsWrap = trialsEl?.parentElement;
-    if (trialsWrap) trialsWrap.style.display = 'none';
+    // Hide trials badge wrapper if available
+    const wrap = trialsEl?.parentElement;
+    if (wrap) wrap.style.display = 'none';
     if (subModal) subModal.style.display = 'none';
   } else {
-    subBtn.textContent = 'Subscribe';    // changed text
+    subBtn.textContent = 'Subscribe';
     subBtn.disabled = false;
   }
 }
 
-// Override subscribe button behavior AFTER bridge init
-if (subBtn) {
-  subBtn.addEventListener('click', () => {
-    // Native: trigger purchase via bridge
-    if (isNative) {
-      if (subStatus === 'ACTIVE') return;
-      try { window.chrome.webview.postMessage('REQUEST_SUBSCRIBE'); } catch {}
-      return;
-    }
-    // Browser: open existing modal
-    openSubscribeModal();
+// Attach handlers (ensure button is not "submit" inside forms)
+(function attachHandlers() {
+  updateTrials();
+  setDownloadEnabled(false);
+  updateSubscribeUI();
+
+  if (genBtn) genBtn.addEventListener('click', onGenerate);
+  if (downloadBtn) downloadBtn.addEventListener('click', onDownload);
+
+  if (subBtn) {
+    subBtn.setAttribute('type', 'button');
+    subBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (isNative) {
+        if (subStatus === 'ACTIVE') return;
+        // Fire native purchase request
+        try { window.chrome.webview.postMessage('REQUEST_SUBSCRIBE'); } catch {}
+        return;
+      }
+
+      // Browser: open web modal (coming soon)
+      openSubscribeModal();
+    });
+  }
+
+  subClose?.addEventListener('click', closeSubscribeModal);
+  subModal?.addEventListener('click', (e) => {
+    if (e.target === subModal) closeSubscribeModal();
   });
-}
-// =====================================================================
-// END bridge additions
-// =====================================================================
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isModalOpen()) closeSubscribeModal();
+  });
+})();
 
-let trials = Number(localStorage.getItem(TRIALS_KEY));
-if (!Number.isFinite(trials) || trials <= 0) trials = 3;
-let currentImageUrl = '';
-updateTrials();
-setDownloadEnabled(false);
-updateSubscribeUI(); // ensure initial label
-
-// Events
-genBtn.addEventListener('click', onGenerate);
-downloadBtn.addEventListener('click', onDownload);
-
-subClose?.addEventListener('click', closeSubscribeModal);
-subModal?.addEventListener('click', (e) => {
-  if (e.target === subModal) closeSubscribeModal();
-});
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && isModalOpen()) closeSubscribeModal();
-});
-
+// ------------- UI helpers -------------
 function isModalOpen() {
   return subModal && subModal.style.display === 'flex';
 }
 function openSubscribeModal() {
-  // Native + active: no need
   if (isNative && subStatus === 'ACTIVE') return;
   if (subModal) {
     subModal.style.display = 'flex';
@@ -109,12 +113,60 @@ function closeSubscribeModal() {
     subModal.setAttribute('aria-hidden', 'true');
   }
 }
+function updateTrials() {
+  trialsEl && (trialsEl.textContent = String(trials));
+}
+function setLoading(isLoading) {
+  if (!genBtn) return;
+  genBtn.disabled = isLoading;
+  genBtn.textContent = isLoading ? 'Generating…' : 'Generate Image';
+  if (isLoading) setDownloadEnabled(false);
+  else if (currentImageUrl) setDownloadEnabled(true);
+}
+function setDownloadEnabled(enabled) {
+  if (!downloadBtn) return;
+  downloadBtn.disabled = !enabled;
+  downloadBtn.textContent = enabled ? 'Download' : 'Download';
+}
+function clearPreview() {
+  if (!preview) return;
+  preview.innerHTML = `
+    <div class="placeholder">
+      <img src="icons/image-placeholder.svg" alt="" />
+      <p>Generating…</p>
+    </div>
+  `;
+}
+function showImage(url) {
+  if (!preview) return;
+  preview.innerHTML = '';
+  const img = document.createElement('img');
+  img.className = 'generated';
+  img.alt = 'Generated image';
+  img.src = url;
+  img.loading = 'lazy';
+  preview.appendChild(img);
+}
+function showError(msg) {
+  if (!preview) return;
+  const div = document.createElement('div');
+  div.className = 'error-box';
+  div.style.padding = '12px';
+  div.style.color = '#b00020';
+  div.style.background = '#ffecec';
+  div.style.border = '1px solid #ffb3b3';
+  div.style.borderRadius = '8px';
+  div.textContent = msg;
+  preview.innerHTML = '';
+  preview.appendChild(div);
+}
 
+// ------------- Generate / Download -------------
 async function onGenerate() {
-  const prompt = (promptEl.value || '').trim();
+  const prompt = (promptEl?.value || '').trim();
   if (!prompt) { alert('Please enter a prompt.'); return; }
 
-  // Trials finished (only block if NOT subscribed)
+  // If not subscribed and no trials left → show modal
   if (trials <= 0 && !(isNative && subStatus === 'ACTIVE')) {
     openSubscribeModal();
     return;
@@ -138,9 +190,7 @@ async function onGenerate() {
       trials -= 1;
       localStorage.setItem(TRIALS_KEY, String(trials));
       updateTrials();
-      if (trials <= 0) {
-        setTimeout(openSubscribeModal, 400);
-      }
+      if (trials <= 0) setTimeout(openSubscribeModal, 400);
     }
 
     setDownloadEnabled(true);
@@ -164,7 +214,7 @@ async function onDownload() {
   downloadBtn.disabled = true;
   downloadBtn.textContent = 'Downloading…';
   try {
-    const filename = makeFilename(promptEl.value);
+    const filename = makeFilename(promptEl?.value);
     const link = `${DOWNLOAD_URL}?url=${encodeURIComponent(currentImageUrl)}&filename=${encodeURIComponent(filename)}`;
     window.location.href = link;
   } finally {
@@ -189,10 +239,9 @@ async function postWithTimeout(url, body, timeoutMs) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
 
-  // headers object so we can inject X-Sub
   const headers = { 'Content-Type': 'application/json' };
   if (isNative && subStatus === 'ACTIVE') {
-    headers['X-Sub'] = '1'; // tells backend to bypass rate limit
+    headers['X-Sub'] = '1'; // backend bypass rate limit
   }
 
   const res = await fetch(url, {
@@ -232,57 +281,7 @@ async function postWithTimeout(url, body, timeoutMs) {
   });
 }
 
-function updateTrials() {
-  trialsEl && (trialsEl.textContent = String(trials));
-}
-
-function setLoading(isLoading) {
-  genBtn.disabled = isLoading;
-  genBtn.textContent = isLoading ? 'Generating…' : 'Generate Image';
-  if (isLoading) setDownloadEnabled(false);
-  else if (currentImageUrl) setDownloadEnabled(true);
-}
-
-function setDownloadEnabled(enabled) {
-  if (!downloadBtn) return;
-  downloadBtn.disabled = !enabled;
-  downloadBtn.textContent = enabled ? 'Download' : 'Download';
-}
-
-function clearPreview() {
-  if (!preview) return;
-  preview.innerHTML = `
-    <div class="placeholder">
-      <img src="icons/image-placeholder.svg" alt="" />
-      <p>Generating…</p>
-    </div>
-  `;
-}
-
-function showImage(url) {
-  preview.innerHTML = '';
-  const img = document.createElement('img');
-  img.className = 'generated';
-  img.alt = 'Generated image';
-  img.src = url;
-  img.loading = 'lazy';
-  preview.appendChild(img);
-}
-
-function showError(msg) {
-  if (!preview) return;
-  const div = document.createElement('div');
-  div.className = 'error-box';
-  div.style.padding = '12px';
-  div.style.color = '#b00020';
-  div.style.background = '#ffecec';
-  div.style.border = '1px solid #ffb3b3';
-  div.style.borderRadius = '8px';
-  div.textContent = msg;
-  preview.innerHTML = '';
-  preview.appendChild(div);
-}
-
+// Global error guard
 window.addEventListener('unhandledrejection', (ev) => {
   console.error('Unhandled promise rejection:', ev.reason);
   showError('Unhandled error: ' + (ev.reason?.message || ev.reason));
