@@ -132,9 +132,9 @@
 
   <script src="main.js"></script>
   <script>
-    // Service Worker (basic) — version bump later if cache issues
+    // Service Worker register (v6) — version param added
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+      navigator.serviceWorker.register('./service-worker.js?v=6').catch(console.error);
     }
 
     // Modal logic (kept here so it works even if main.js not updated yet)
