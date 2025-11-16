@@ -1,14 +1,14 @@
-// Textura AI frontend main.js (v2.1)
-// Backend: Render POST /api/generate-image
-// IMPORTANT: NEVER expose API key here. Keys live only in server env variables.
+// Textura AI frontend main.js (v2.2 with Download)
+// Backend: Render POST /api/generate-image (Ideogram)
+// IMPORTANT: NEVER expose API keys here.
 
 // ====== CONFIG ======
-const API_URL = 'https://textura-api.onrender.com/api/generate-image'; // change only if your Render URL differs
-const DEFAULT_MODEL_ID = 'imagen-4.0-fast-generate';
+const API_URL = 'https://textura-api.onrender.com/api/generate-image';
+const DEFAULT_MODEL_ID = '';           // Not needed for Ideogram backend; leave empty
 const DEFAULT_ASPECT_RATIO = '1:1';
-const REQUEST_TIMEOUT_MS = 60000; // 60s
+const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.1 loaded');
+console.log('Main.js v2.2 loaded');
 
 // ====== DOM ======
 const TRIALS_KEY = 'textura_trials_left';
@@ -16,66 +16,89 @@ const preview = document.getElementById('preview');
 const trialsEl = document.getElementById('trials-left');
 const genBtn = document.getElementById('generate');
 const subBtn = document.getElementById('subscribe');
+const downloadBtn = document.getElementById('download');
 const promptEl = document.getElementById('prompt');
-
-// Future optional selects:
-// const modelSelect = document.getElementById('model');        // <select id="model">
-// const ratioSelect = document.getElementById('aspect-ratio'); // <select id="aspect-ratio">
 
 // ====== STATE ======
 let trials = Number(localStorage.getItem(TRIALS_KEY));
 if (!Number.isFinite(trials) || trials <= 0) trials = 3;
+let currentImageUrl = '';
 updateTrials();
+setDownloadEnabled(false);
 
-// ====== EVENT: Generate ======
-genBtn.addEventListener('click', async () => {
+// ====== EVENTS ======
+genBtn.addEventListener('click', onGenerate);
+subBtn.addEventListener('click', () => {
+  alert('Subscribe flow Windows Store me baad me add hoga (demo).');
+});
+downloadBtn.addEventListener('click', onDownload);
+
+// ====== HANDLERS ======
+async function onGenerate() {
   const prompt = (promptEl.value || '').trim();
-  if (!prompt) {
-    alert('Please enter a prompt.');
-    return;
-  }
-  if (trials <= 0) {
-    alert('Free trials khatam. Please Subscribe.');
-    return;
-  }
+  if (!prompt) { alert('Please enter a prompt.'); return; }
+  if (trials <= 0) { alert('Free trials khatam. Please Subscribe.'); return; }
 
   setLoading(true);
-  clearPreviewError();
+  clearPreview();
 
   try {
     const payload = buildPayload(prompt);
     const data = await postWithTimeout(API_URL, payload, REQUEST_TIMEOUT_MS);
 
-    if (!data || !data.imageUrl) {
-      throw new Error('No imageUrl returned.');
-    }
+    if (!data || !data.imageUrl) throw new Error('No imageUrl returned.');
+    currentImageUrl = data.imageUrl;
+    showImage(currentImageUrl);
 
-    showImage(data.imageUrl);
-
-    // Trials only decrement on success
+    // consume trial on success
     trials -= 1;
     localStorage.setItem(TRIALS_KEY, String(trials));
     updateTrials();
+    setDownloadEnabled(true);
   } catch (e) {
     console.error(e);
     showError('Error: ' + (e.message || e));
     alert('Kuch ghalt hogaya: ' + (e.message || e));
+    setDownloadEnabled(false);
   } finally {
     setLoading(false);
   }
-});
+}
 
-// ====== EVENT: Subscribe ======
-subBtn.addEventListener('click', () => {
-  alert('Subscribe flow Windows Store me baad me add hoga (demo).');
-});
+async function onDownload() {
+  if (!currentImageUrl) return;
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = 'Downloading…';
+  try {
+    // Try blob download (best UX). If CORS blocks, fallback to open in new tab.
+    const resp = await fetch(currentImageUrl, { mode: 'cors' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = 'textura-' + Date.now() + '.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch (e) {
+    console.warn('Blob download failed, opening in new tab:', e);
+    window.open(currentImageUrl, '_blank');
+  } finally {
+    downloadBtn.textContent = 'Download';
+    downloadBtn.disabled = false;
+  }
+}
 
 // ====== HELPERS ======
 function buildPayload(prompt) {
-  // Agar dropdowns ayenge to unki values yahan pick karenge
-  const model_id = DEFAULT_MODEL_ID; // modelSelect?.value || DEFAULT_MODEL_ID;
-  const aspect_ratio = DEFAULT_ASPECT_RATIO; // ratioSelect?.value || DEFAULT_ASPECT_RATIO;
-  return { prompt, model_id, aspect_ratio };
+  // For Ideogram backend, model_id is not required; keeping for future flexibility
+  const model_id = DEFAULT_MODEL_ID || undefined;
+  const aspect_ratio = DEFAULT_ASPECT_RATIO;
+  const payload = { prompt, aspect_ratio };
+  if (model_id) payload.model_id = model_id;
+  return payload;
 }
 
 async function postWithTimeout(url, body, timeoutMs) {
@@ -95,7 +118,6 @@ async function postWithTimeout(url, body, timeoutMs) {
   clearTimeout(id);
 
   if (!res.ok) {
-    // Try parse JSON error
     let detail = '';
     try {
       const jsonErr = await res.json();
@@ -118,6 +140,25 @@ function updateTrials() {
 function setLoading(isLoading) {
   genBtn.disabled = isLoading;
   genBtn.textContent = isLoading ? 'Generating…' : 'Generate Image';
+  // Optional: prevent download click during generation
+  if (isLoading) setDownloadEnabled(false);
+  else if (currentImageUrl) setDownloadEnabled(true);
+}
+
+function setDownloadEnabled(enabled) {
+  if (!downloadBtn) return;
+  downloadBtn.disabled = !enabled;
+  downloadBtn.textContent = enabled ? 'Download' : 'Download';
+}
+
+function clearPreview() {
+  if (!preview) return;
+  preview.innerHTML = `
+    <div class="placeholder">
+      <img src="icons/image-placeholder.svg" alt="" />
+      <p>Generating…</p>
+    </div>
+  `;
 }
 
 function showImage(url) {
@@ -131,7 +172,6 @@ function showImage(url) {
 }
 
 function showError(msg) {
-  // Show an error box inside preview
   if (!preview) return;
   const div = document.createElement('div');
   div.className = 'error-box';
@@ -145,22 +185,8 @@ function showError(msg) {
   preview.appendChild(div);
 }
 
-function clearPreviewError() {
-  // Just clears previous content (image or error)
-  // Could add logic to only remove error if needed
-}
-
+// Global unhandled promise catcher
 window.addEventListener('unhandledrejection', (ev) => {
   console.error('Unhandled promise rejection:', ev.reason);
   showError('Unhandled error: ' + (ev.reason?.message || ev.reason));
 });
-
-// OPTIONAL: utility to reset trials during dev
-window.resetTrials = function (n = 3) {
-  trials = n;
-  localStorage.setItem(TRIALS_KEY, String(trials));
-  updateTrials();
-  console.log('Trials reset to', n);
-};
-
-// ====== END ======
