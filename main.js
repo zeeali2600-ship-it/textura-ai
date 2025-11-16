@@ -1,4 +1,4 @@
-// Textura AI frontend main.js (v2.3.1) — Cost-saver sizes + forced TURBO
+// Textura AI frontend main.js (v2.4) — aspect-only (safe mode) + download proxy
 
 const API_BASE = 'https://textura-api.onrender.com';
 const API_URL = API_BASE + '/api/generate-image';
@@ -6,7 +6,7 @@ const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.3.1 loaded');
+console.log('Main.js v2.4 loaded');
 
 const TRIALS_KEY = 'textura_trials_left';
 const preview = document.getElementById('preview');
@@ -16,7 +16,6 @@ const subBtn = document.getElementById('subscribe');
 const downloadBtn = document.getElementById('download');
 const promptEl = document.getElementById('prompt');
 const ratioSelect = document.getElementById('aspect-ratio');
-const sizeSelect = document.getElementById('size');
 
 let trials = Number(localStorage.getItem(TRIALS_KEY));
 if (!Number.isFinite(trials) || trials <= 0) trials = 3;
@@ -40,11 +39,9 @@ async function onGenerate() {
 
   try {
     const ar = (ratioSelect?.value || DEFAULT_ASPECT_RATIO);
-    const base = Number(sizeSelect?.value || '1024');
-    const resolution = computeResolution(ar, base);
 
-    // Force cheapest speed
-    const payload = { prompt, aspect_ratio: ar, resolution, speed: 'TURBO' };
+    // Cheapest speed forced on server; we send only prompt + aspect
+    const payload = { prompt, aspect_ratio: ar };
 
     const data = await postWithTimeout(API_URL, payload, REQUEST_TIMEOUT_MS);
     if (!data || !data.imageUrl) throw new Error('No imageUrl returned.');
@@ -82,17 +79,6 @@ async function onDownload() {
   }
 }
 
-function computeResolution(ar, base) {
-  switch ((ar || '').replace(/\s/g, '')) {
-    case '1:1': return `${base}x${base}`;
-    case '16:9': return `${base}x${Math.round(base * 9 / 16)}`;
-    case '9:16': return `${Math.round(base * 9 / 16)}x${base}`;
-    case '3:2': return `${base}x${Math.round(base * 2 / 3)}`;
-    case '2:3': return `${Math.round(base * 2 / 3)}x${base}`;
-    default: return `${base}x${base}`;
-  }
-}
-
 function makeFilename(prompt) {
   const slug = String(prompt || 'textura')
       .toLowerCase()
@@ -123,7 +109,8 @@ async function postWithTimeout(url, body, timeoutMs) {
     let detail = '';
     try {
       const jsonErr = await res.json();
-      detail = jsonErr.error || JSON.stringify(jsonErr).slice(0, 150);
+      // show server error + detail if present (better debug)
+      detail = (jsonErr.error || res.statusText) + (jsonErr.detail ? ' — ' + jsonErr.detail : '');
     } catch {
       detail = res.status + ' ' + res.statusText;
     }
