@@ -1,4 +1,4 @@
-// Textura AI frontend main.js (v2.3) — Download via backend + Size/Speed controls
+// Textura AI frontend main.js (v2.3.1) — Cost-saver sizes + forced TURBO
 
 const API_BASE = 'https://textura-api.onrender.com';
 const API_URL = API_BASE + '/api/generate-image';
@@ -6,7 +6,7 @@ const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.3 loaded');
+console.log('Main.js v2.3.1 loaded');
 
 const TRIALS_KEY = 'textura_trials_left';
 const preview = document.getElementById('preview');
@@ -17,7 +17,6 @@ const downloadBtn = document.getElementById('download');
 const promptEl = document.getElementById('prompt');
 const ratioSelect = document.getElementById('aspect-ratio');
 const sizeSelect = document.getElementById('size');
-const speedSelect = document.getElementById('speed');
 
 let trials = Number(localStorage.getItem(TRIALS_KEY));
 if (!Number.isFinite(trials) || trials <= 0) trials = 3;
@@ -43,9 +42,9 @@ async function onGenerate() {
     const ar = (ratioSelect?.value || DEFAULT_ASPECT_RATIO);
     const base = Number(sizeSelect?.value || '1024');
     const resolution = computeResolution(ar, base);
-    const speed = (speedSelect?.value || 'TURBO');
 
-    const payload = { prompt, aspect_ratio: ar, resolution, speed };
+    // Force cheapest speed
+    const payload = { prompt, aspect_ratio: ar, resolution, speed: 'TURBO' };
 
     const data = await postWithTimeout(API_URL, payload, REQUEST_TIMEOUT_MS);
     if (!data || !data.imageUrl) throw new Error('No imageUrl returned.');
@@ -73,7 +72,6 @@ async function onDownload() {
   downloadBtn.textContent = 'Downloading…';
   try {
     const filename = makeFilename(promptEl.value);
-    // Force download via backend (Content-Disposition: attachment)
     const link = `${DOWNLOAD_URL}?url=${encodeURIComponent(currentImageUrl)}&filename=${encodeURIComponent(filename)}`;
     window.location.href = link;
   } finally {
