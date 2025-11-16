@@ -1,16 +1,13 @@
-// Textura AI frontend main.js (v2.2 with Download)
-// Backend: Render POST /api/generate-image (Ideogram)
-// IMPORTANT: NEVER expose API keys here.
+// Textura AI frontend main.js (v2.3) — Download via backend + Size/Speed controls
 
-// ====== CONFIG ======
-const API_URL = 'https://textura-api.onrender.com/api/generate-image';
-const DEFAULT_MODEL_ID = '';           // Not needed for Ideogram backend; leave empty
+const API_BASE = 'https://textura-api.onrender.com';
+const API_URL = API_BASE + '/api/generate-image';
+const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.2 loaded');
+console.log('Main.js v2.3 loaded');
 
-// ====== DOM ======
 const TRIALS_KEY = 'textura_trials_left';
 const preview = document.getElementById('preview');
 const trialsEl = document.getElementById('trials-left');
@@ -18,22 +15,22 @@ const genBtn = document.getElementById('generate');
 const subBtn = document.getElementById('subscribe');
 const downloadBtn = document.getElementById('download');
 const promptEl = document.getElementById('prompt');
+const ratioSelect = document.getElementById('aspect-ratio');
+const sizeSelect = document.getElementById('size');
+const speedSelect = document.getElementById('speed');
 
-// ====== STATE ======
 let trials = Number(localStorage.getItem(TRIALS_KEY));
 if (!Number.isFinite(trials) || trials <= 0) trials = 3;
 let currentImageUrl = '';
 updateTrials();
 setDownloadEnabled(false);
 
-// ====== EVENTS ======
 genBtn.addEventListener('click', onGenerate);
 subBtn.addEventListener('click', () => {
   alert('Subscribe flow Windows Store me baad me add hoga (demo).');
 });
 downloadBtn.addEventListener('click', onDownload);
 
-// ====== HANDLERS ======
 async function onGenerate() {
   const prompt = (promptEl.value || '').trim();
   if (!prompt) { alert('Please enter a prompt.'); return; }
@@ -43,14 +40,19 @@ async function onGenerate() {
   clearPreview();
 
   try {
-    const payload = buildPayload(prompt);
-    const data = await postWithTimeout(API_URL, payload, REQUEST_TIMEOUT_MS);
+    const ar = (ratioSelect?.value || DEFAULT_ASPECT_RATIO);
+    const base = Number(sizeSelect?.value || '1024');
+    const resolution = computeResolution(ar, base);
+    const speed = (speedSelect?.value || 'TURBO');
 
+    const payload = { prompt, aspect_ratio: ar, resolution, speed };
+
+    const data = await postWithTimeout(API_URL, payload, REQUEST_TIMEOUT_MS);
     if (!data || !data.imageUrl) throw new Error('No imageUrl returned.');
+
     currentImageUrl = data.imageUrl;
     showImage(currentImageUrl);
 
-    // consume trial on success
     trials -= 1;
     localStorage.setItem(TRIALS_KEY, String(trials));
     updateTrials();
@@ -70,35 +72,37 @@ async function onDownload() {
   downloadBtn.disabled = true;
   downloadBtn.textContent = 'Downloading…';
   try {
-    // Try blob download (best UX). If CORS blocks, fallback to open in new tab.
-    const resp = await fetch(currentImageUrl, { mode: 'cors' });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const blob = await resp.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = objectUrl;
-    a.download = 'textura-' + Date.now() + '.png';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(objectUrl);
-  } catch (e) {
-    console.warn('Blob download failed, opening in new tab:', e);
-    window.open(currentImageUrl, '_blank');
+    const filename = makeFilename(promptEl.value);
+    // Force download via backend (Content-Disposition: attachment)
+    const link = `${DOWNLOAD_URL}?url=${encodeURIComponent(currentImageUrl)}&filename=${encodeURIComponent(filename)}`;
+    window.location.href = link;
   } finally {
-    downloadBtn.textContent = 'Download';
-    downloadBtn.disabled = false;
+    setTimeout(() => {
+      downloadBtn.textContent = 'Download';
+      downloadBtn.disabled = false;
+    }, 1200);
   }
 }
 
-// ====== HELPERS ======
-function buildPayload(prompt) {
-  // For Ideogram backend, model_id is not required; keeping for future flexibility
-  const model_id = DEFAULT_MODEL_ID || undefined;
-  const aspect_ratio = DEFAULT_ASPECT_RATIO;
-  const payload = { prompt, aspect_ratio };
-  if (model_id) payload.model_id = model_id;
-  return payload;
+function computeResolution(ar, base) {
+  switch ((ar || '').replace(/\s/g, '')) {
+    case '1:1': return `${base}x${base}`;
+    case '16:9': return `${base}x${Math.round(base * 9 / 16)}`;
+    case '9:16': return `${Math.round(base * 9 / 16)}x${base}`;
+    case '3:2': return `${base}x${Math.round(base * 2 / 3)}`;
+    case '2:3': return `${Math.round(base * 2 / 3)}x${base}`;
+    default: return `${base}x${base}`;
+  }
+}
+
+function makeFilename(prompt) {
+  const slug = String(prompt || 'textura')
+      .toLowerCase()
+      .replace(/[^a-z0-9\- _]+/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .slice(0, 40) || 'textura';
+  return `${slug}-${Date.now()}.png`;
 }
 
 async function postWithTimeout(url, body, timeoutMs) {
@@ -140,7 +144,6 @@ function updateTrials() {
 function setLoading(isLoading) {
   genBtn.disabled = isLoading;
   genBtn.textContent = isLoading ? 'Generating…' : 'Generate Image';
-  // Optional: prevent download click during generation
   if (isLoading) setDownloadEnabled(false);
   else if (currentImageUrl) setDownloadEnabled(true);
 }
@@ -185,7 +188,6 @@ function showError(msg) {
   preview.appendChild(div);
 }
 
-// Global unhandled promise catcher
 window.addEventListener('unhandledrejection', (ev) => {
   console.error('Unhandled promise rejection:', ev.reason);
   showError('Unhandled error: ' + (ev.reason?.message || ev.reason));
