@@ -1,4 +1,4 @@
-// Textura AI frontend main.js (v2.9) — aspect-only + download proxy + 429 + native subscription (stable click)
+// Textura AI frontend main.js (v2.10) — native subscription click debug + stable bridge
 
 const API_BASE = 'https://textura-api.onrender.com';
 const API_URL = API_BASE + '/api/generate-image';
@@ -6,8 +6,8 @@ const DOWNLOAD_URL = API_BASE + '/api/download';
 const DEFAULT_ASPECT_RATIO = '1:1';
 const REQUEST_TIMEOUT_MS = 60000;
 
-console.log('Main.js v2.9 (subscription bridge) loaded');
-document.body && (document.body.dataset.jsv = 'v2.9');
+console.log('Main.js v2.10 (subscription bridge) loaded');
+document.body && (document.body.dataset.jsv = 'v2.10');
 
 const TRIALS_KEY = 'textura_trials_left';
 let trials = Number(localStorage.getItem(TRIALS_KEY));
@@ -32,10 +32,8 @@ const isNative = !!(window.chrome && window.chrome.webview);
 let subStatus = 'INACTIVE'; // ACTIVE / INACTIVE
 
 if (isNative) {
-  // Ask native shell for current license
   try { window.chrome.webview.postMessage('CHECK_LICENSE'); } catch {}
 
-  // Receive messages from native
   window.chrome.webview.addEventListener('message', (ev) => {
     const msg = ev.data;
     if (typeof msg === 'string' && msg.startsWith('SUB_STATUS:')) {
@@ -50,7 +48,6 @@ function updateSubscribeUI() {
   if (subStatus === 'ACTIVE') {
     subBtn.textContent = 'Pro User';
     subBtn.disabled = true;
-    // Hide trials badge wrapper if available
     const wrap = trialsEl?.parentElement;
     if (wrap) wrap.style.display = 'none';
     if (subModal) subModal.style.display = 'none';
@@ -60,7 +57,7 @@ function updateSubscribeUI() {
   }
 }
 
-// Attach handlers (ensure button is not "submit" inside forms)
+// Attach handlers
 (function attachHandlers() {
   updateTrials();
   setDownloadEnabled(false);
@@ -72,62 +69,47 @@ function updateSubscribeUI() {
   if (subBtn) {
     subBtn.setAttribute('type', 'button');
     subBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
+
+      // DEBUG: show what environment we are in
+      alert('Native=' + (!!(window.chrome&&window.chrome.webview)) + ' | status=' + subStatus);
 
       if (isNative) {
         if (subStatus === 'ACTIVE') return;
-        // Fire native purchase request
-        try { window.chrome.webview.postMessage('REQUEST_SUBSCRIBE'); } catch {}
+        try {
+          console.log('Posting REQUEST_SUBSCRIBE to native');
+          window.chrome.webview.postMessage('REQUEST_SUBSCRIBE');
+        } catch (err) {
+          console.error('postMessage failed', err);
+        }
         return;
       }
 
-      // Browser: open web modal (coming soon)
+      // Browser: open modal
       openSubscribeModal();
     });
   }
 
   subClose?.addEventListener('click', closeSubscribeModal);
-  subModal?.addEventListener('click', (e) => {
-    if (e.target === subModal) closeSubscribeModal();
-  });
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isModalOpen()) closeSubscribeModal();
-  });
+  subModal?.addEventListener('click', (e) => { if (e.target === subModal) closeSubscribeModal(); });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isModalOpen()) closeSubscribeModal(); });
 })();
 
 // ------------- UI helpers -------------
-function isModalOpen() {
-  return subModal && subModal.style.display === 'flex';
-}
+function isModalOpen() { return subModal && subModal.style.display === 'flex'; }
 function openSubscribeModal() {
   if (isNative && subStatus === 'ACTIVE') return;
-  if (subModal) {
-    subModal.style.display = 'flex';
-    subModal.setAttribute('aria-hidden', 'false');
-  }
+  if (subModal) { subModal.style.display = 'flex'; subModal.setAttribute('aria-hidden', 'false'); }
 }
-function closeSubscribeModal() {
-  if (subModal) {
-    subModal.style.display = 'none';
-    subModal.setAttribute('aria-hidden', 'true');
-  }
-}
-function updateTrials() {
-  trialsEl && (trialsEl.textContent = String(trials));
-}
+function closeSubscribeModal() { if (subModal) { subModal.style.display = 'none'; subModal.setAttribute('aria-hidden', 'true'); } }
+function updateTrials() { trialsEl && (trialsEl.textContent = String(trials)); }
 function setLoading(isLoading) {
   if (!genBtn) return;
   genBtn.disabled = isLoading;
   genBtn.textContent = isLoading ? 'Generating…' : 'Generate Image';
-  if (isLoading) setDownloadEnabled(false);
-  else if (currentImageUrl) setDownloadEnabled(true);
+  if (isLoading) setDownloadEnabled(false); else if (currentImageUrl) setDownloadEnabled(true);
 }
-function setDownloadEnabled(enabled) {
-  if (!downloadBtn) return;
-  downloadBtn.disabled = !enabled;
-  downloadBtn.textContent = enabled ? 'Download' : 'Download';
-}
+function setDownloadEnabled(enabled) { if (!downloadBtn) return; downloadBtn.disabled = !enabled; downloadBtn.textContent = 'Download'; }
 function clearPreview() {
   if (!preview) return;
   preview.innerHTML = `
@@ -166,11 +148,7 @@ async function onGenerate() {
   const prompt = (promptEl?.value || '').trim();
   if (!prompt) { alert('Please enter a prompt.'); return; }
 
-  // If not subscribed and no trials left → show modal
-  if (trials <= 0 && !(isNative && subStatus === 'ACTIVE')) {
-    openSubscribeModal();
-    return;
-  }
+  if (trials <= 0 && !(isNative && subStatus === 'ACTIVE')) { openSubscribeModal(); return; }
 
   setLoading(true);
   clearPreview();
@@ -185,7 +163,6 @@ async function onGenerate() {
     currentImageUrl = data.imageUrl;
     showImage(currentImageUrl);
 
-    // Decrease trials only if not subscribed
     if (!(isNative && subStatus === 'ACTIVE')) {
       trials -= 1;
       localStorage.setItem(TRIALS_KEY, String(trials));
@@ -218,20 +195,12 @@ async function onDownload() {
     const link = `${DOWNLOAD_URL}?url=${encodeURIComponent(currentImageUrl)}&filename=${encodeURIComponent(filename)}`;
     window.location.href = link;
   } finally {
-    setTimeout(() => {
-      downloadBtn.textContent = 'Download';
-      downloadBtn.disabled = false;
-    }, 1200);
+    setTimeout(() => { downloadBtn.textContent = 'Download'; downloadBtn.disabled = false; }, 1200);
   }
 }
 
 function makeFilename(prompt) {
-  const slug = String(prompt || 'textura')
-    .toLowerCase()
-    .replace(/[^a-z0-9\- _]+/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .slice(0, 40) || 'textura';
+  const slug = String(prompt || 'textura').toLowerCase().replace(/[^a-z0-9\- _]+/g, '').trim().replace(/\s+/g, '-').slice(0, 40) || 'textura';
   return `${slug}-${Date.now()}.png`;
 }
 
@@ -240,45 +209,25 @@ async function postWithTimeout(url, body, timeoutMs) {
   const id = setTimeout(() => controller.abort(), timeoutMs);
 
   const headers = { 'Content-Type': 'application/json' };
-  if (isNative && subStatus === 'ACTIVE') {
-    headers['X-Sub'] = '1'; // backend bypass rate limit
-  }
+  if (isNative && subStatus === 'ACTIVE') headers['X-Sub'] = '1';
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body),
-    signal: controller.signal
-  }).catch(err => {
-    clearTimeout(id);
-    throw new Error('Network fail: ' + err.message);
-  });
+  const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal })
+    .catch(err => { clearTimeout(id); throw new Error('Network fail: ' + err.message); });
 
   clearTimeout(id);
 
   if (res.status === 429) {
-    let msg = 'Rate limit exceeded (5/hour)';
-    try {
-      const j = await res.json();
-      if (j && j.error) msg = j.error;
-    } catch {}
+    let msg = 'Rate limit exceeded (5/hour)'; try { const j = await res.json(); if (j && j.error) msg = j.error; } catch {}
     throw new Error(msg);
   }
 
   if (!res.ok) {
-    let detail = '';
-    try {
-      const jsonErr = await res.json();
-      detail = (jsonErr.error || res.statusText) + (jsonErr.detail ? ' — ' + jsonErr.detail : '');
-    } catch {
-      detail = res.status + ' ' + res.statusText;
-    }
+    let detail = ''; try { const jsonErr = await res.json(); detail = (jsonErr.error || res.statusText) + (jsonErr.detail ? ' — ' + jsonErr.detail : ''); }
+    catch { detail = res.status + ' ' + res.statusText; }
     throw new Error('API error: ' + detail);
   }
 
-  return res.json().catch(() => {
-    throw new Error('Bad JSON response');
-  });
+  return res.json().catch(() => { throw new Error('Bad JSON response'); });
 }
 
 // Global error guard
